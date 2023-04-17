@@ -5,12 +5,15 @@
 
 using namespace std;
 
-ByteStream::ByteStream(uint64_t capacity) : capacity_(capacity) {}
+ByteStream::ByteStream(uint64_t capacity) : capacity_(capacity), buf_() {}
 
 void Writer::push(string data) {
     // Your code here.
     size_t size = min(data.length(), capacity_ - buf_.size());
-    buf_.append(data.substr(0, size));
+    data = data.substr(0, size);
+    for (const auto &c : data) {
+        buf_.push_back(c);
+    }
     tot_write_ += size;
 }
 
@@ -41,7 +44,7 @@ uint64_t Writer::bytes_pushed() const {
 
 string_view Reader::peek() const {
     // Your code here.
-    return std::string_view(buf_.begin(), buf_.begin() + 1);
+    return std::string_view(&buf_.front(), 1);
 }
 
 bool Reader::is_finished() const {
@@ -57,7 +60,7 @@ bool Reader::has_error() const {
 void Reader::pop(uint64_t len) {
     // Your code here.
     const std::size_t size = min(len, buf_.size());
-    buf_.erase(0, size);
+    buf_.erase(buf_.begin(), buf_.begin() + size);
     tot_read_ += size;
 }
 
