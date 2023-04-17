@@ -11,7 +11,7 @@ class Writer;
 class ByteStream {
   protected:
     uint64_t capacity_;
-    std::string buf_{};
+    std::deque<char> buf_;
     bool is_end_ = false;
     bool is_err_ = false;
     size_t tot_read_ = 0;
