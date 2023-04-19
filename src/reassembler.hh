@@ -40,4 +40,6 @@ class Reassembler {
     uint64_t nxt_idx;
     uint64_t end_idx;
     std::map<uint64_t, std::string> data_map;
+    void store(uint64_t,std::string);
+    void backteam(Writer&);
 };
