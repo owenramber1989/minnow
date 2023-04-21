@@ -39,7 +39,9 @@ class Reassembler {
   private:
     uint64_t nxt_idx;
     uint64_t end_idx;
-    std::map<uint64_t, std::string> data_map;
+    std::map<uint64_t,std::string> buf;
+    uint64_t unassembled_bytes;
+    bool end_checked;
     void store(uint64_t,std::string);
-    void backteam(Writer&);
+    void merge(uint64_t,std::string,uint64_t,std::string);
 };
