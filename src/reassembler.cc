@@ -14,13 +14,9 @@ void Reassembler::insert(uint64_t first_index, string data,
           return;
       }
       */
-    // EOF
-    if (is_last_substring) {
-        end_checked = true;
-        // end_idx = first_index + data.length();
-        eof_idx = first_index + data.size();
+    if (!data.empty()) {
+        preprocess(first_index, data, output);
     }
-    preprocess(first_index,data,output);
     while (!buf.empty() && buf.begin()->first == nxt_idx) {
         const auto &iter = buf.begin();
         output.push(iter->second);
@@ -28,14 +24,22 @@ void Reassembler::insert(uint64_t first_index, string data,
         buf.erase(iter);
     }
 
+    // EOF
+    if (is_last_substring) {
+        end_checked = true;
+        // end_idx = first_index + data.length();
+        eof_idx = first_index + data.size();
+    }
     if (end_checked && output.writer().bytes_pushed() == eof_idx) {
         output.close();
     }
 }
-void Reassembler::preprocess(uint64_t &first_index,std::string& data,Writer& output){
+void Reassembler::preprocess(uint64_t &first_index, std::string &data,
+                             Writer &output) {
     uint64_t cap = output.available_capacity();
     nxt_idx = output.writer().bytes_pushed();
-    uint64_t max_idx = output.reader().bytes_popped() + nxt_idx + cap;
+    uint64_t max_idx =
+        output.reader().bytes_popped() + output.reader().bytes_buffered() + cap;
     /*
      * cap 当前剩余容量
      * dst_idx 如果可以正常插入，对应的下标
@@ -47,9 +51,10 @@ void Reassembler::preprocess(uint64_t &first_index,std::string& data,Writer& out
      * stream了 max_idx和nxt_idx都是尚未被数据填充的
      */
     if (nxt_idx == max_idx) {
+        output.close();
         return;
     }
-    if (first_index >= max_idx || first_index + data.size() < nxt_idx) {
+    if (first_index >= max_idx || first_index + data.size() - 1 < nxt_idx) {
         return;
     }
 
@@ -70,7 +75,6 @@ void Reassembler::preprocess(uint64_t &first_index,std::string& data,Writer& out
     }
 
     store(first_index, data);
-
 }
 /*
  * store最大的问题是如何高效存储，方便后续归队
