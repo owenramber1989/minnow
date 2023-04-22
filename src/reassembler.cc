@@ -20,6 +20,19 @@ void Reassembler::insert(uint64_t first_index, string data,
         // end_idx = first_index + data.length();
         eof_idx = first_index + data.size();
     }
+    preprocess(first_index,data,output);
+    while (!buf.empty() && buf.begin()->first == nxt_idx) {
+        const auto &iter = buf.begin();
+        output.push(iter->second);
+        unassembled_bytes -= iter->second.size();
+        buf.erase(iter);
+    }
+
+    if (end_checked && output.writer().bytes_pushed() == eof_idx) {
+        output.close();
+    }
+}
+void Reassembler::preprocess(uint64_t &first_index,std::string& data,Writer& output){
     uint64_t cap = output.available_capacity();
     nxt_idx = output.writer().bytes_pushed();
     uint64_t max_idx = output.reader().bytes_popped() + nxt_idx + cap;
@@ -39,45 +52,7 @@ void Reassembler::insert(uint64_t first_index, string data,
     if (first_index >= max_idx || first_index + data.size() < nxt_idx) {
         return;
     }
-    // if(is_last_substring)  max_idx=first_index-1;
-    /*
-     * 先处理两种最简单的情况
-     * 1. 忽视完全处于范围之外的的子串
-     * 2. 当前子串是最后一个子串
-     */
-    /*
-    if(first_index==nxt_idx){
-        if(cap<data.size()) {
-            output.push(data.substr(0,cap));
-            output.close();//已经填充完了
-        }
-        else {
-            output.push(data);
-            nxt_idx+=data.size();
-            //backteam(output);
-            return;
-        }
-    }
 
-    else if(first_index>nxt_idx){
-        if(first_index+data.size()>max_idx){
-            store(first_index,data.substr(0,max_idx-first_index));
-            max_idx=first_index-1;
-        }
-        else store(first_index,data);
-    }
-    else{
-        if(first_index+data.size()>=max_idx){
-            output.push(data.substr(nxt_idx-first_index,cap));
-            output.close();//已经填充完了
-        }
-        else{
-            output.push(data.substr(nxt_idx-first_index,data.size()-nxt_idx+first_index));
-            nxt_idx+=data.size()-nxt_idx+first_index;
-            backteam(output);
-        }
-    }
-    */
     // 需要去尾的情况
     if (first_index + data.size() > max_idx) {
         data = data.substr(0, max_idx - first_index);
@@ -91,24 +66,12 @@ void Reassembler::insert(uint64_t first_index, string data,
     if (buf.empty()) {
         unassembled_bytes += data.size();
         buf.insert({first_index, data});
+        return;
     }
 
-    // 处理重叠部分
-    else {
-        store(first_index, data);
-    }
-    while (!buf.empty() && buf.begin()->first == nxt_idx) {
-        const auto &iter = buf.begin();
-        output.push(iter->second);
-        unassembled_bytes -= iter->second.size();
-        buf.erase(iter);
-    }
+    store(first_index, data);
 
-    if (end_checked && output.writer().bytes_pushed() == eof_idx) {
-        output.close();
-    }
 }
-
 /*
  * store最大的问题是如何高效存储，方便后续归队
  * 它需要能分辨下面这几种情况

@@ -44,4 +44,5 @@ class Reassembler {
     bool end_checked = false;
     void store(uint64_t, std::string);
     void merge(uint64_t &, std::string &, uint64_t, std::string);
+    void preprocess(uint64_t&,std::string&,Writer&);
 };
