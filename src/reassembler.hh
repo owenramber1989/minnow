@@ -37,11 +37,11 @@ class Reassembler {
     uint64_t bytes_pending() const;
 
   private:
-    uint64_t nxt_idx;
-    uint64_t end_idx;
-    std::map<uint64_t,std::string> buf;
-    uint64_t unassembled_bytes;
-    bool end_checked;
-    void store(uint64_t,std::string);
-    void merge(uint64_t,std::string,uint64_t,std::string);
+    uint64_t nxt_idx = 0;
+    uint64_t eof_idx = 0;
+    std::map<uint64_t, std::string> buf{};
+    uint64_t unassembled_bytes = 0;
+    bool end_checked = false;
+    void store(uint64_t, std::string);
+    void merge(uint64_t &, std::string &, uint64_t, std::string);
 };
