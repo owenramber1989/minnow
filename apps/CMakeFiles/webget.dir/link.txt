@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/webget.dir/webget.o -o webget  -lminnow_debug -lutil_debug 

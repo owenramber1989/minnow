@@ -1,0 +1,3 @@
+/home/owenramber1989/EDisk/proj/minnow/apps/CMakeFiles/webget.dir
+/home/owenramber1989/EDisk/proj/minnow/apps/CMakeFiles/edit_cache.dir
+/home/owenramber1989/EDisk/proj/minnow/apps/CMakeFiles/rebuild_cache.dir
