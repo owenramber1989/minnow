@@ -19,6 +19,7 @@ class TCPReceiver {
 
   private:
     std::uint64_t isn = 0;
+    bool fin = false;
     Wrap32 zp{};
     bool is_syn_ = false;
 };
