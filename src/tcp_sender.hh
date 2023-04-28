@@ -15,6 +15,7 @@ class Timer {
         ticks_ += ms_since_last_tick;
         return running && (ticks_ >= time_out_);
     }
+    uint64_t tick_now() { return ticks_; }
     bool in_run() { return running; }
     void start() {
         ticks_ = 0;

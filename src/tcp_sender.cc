@@ -31,13 +31,11 @@ optional<TCPSenderMessage> TCPSender::maybe_send() {
     if (_messages.empty()) {
         return {};
     }
-    if (consecutive_retransmissions_ && timer_.in_run()) {
+    if (consecutive_retransmissions_ && timer_.in_run() &&
+        timer_.tick_now() > 0) {
         return {};
     }
     TCPSenderMessage msg = _messages.front();
-    if (_messages.empty()) {
-        msg = _outstanding_messages.front();
-    }
     _messages.pop();
 
     return msg;
@@ -91,6 +89,9 @@ void TCPSender::receive(const TCPReceiverMessage &msg) {
     if (msg.ackno) {
         rcvno = msg.ackno->unwrap(isn_, nxt_seqno_);
     }
+    if (rcvno > nxt_seqno_) {
+        return;
+    }
     window_size_ = msg.window_size;
     bool new_check_ = false;
     while (!_outstanding_messages.empty()) {
@@ -126,7 +127,6 @@ void TCPSender::tick(const size_t ms_since_last_tick) {
         ++consecutive_retransmissions_;
         retransmission_timeout_ <<= 1;
     }
-    timer_.stop();
     maybe_send();
     timer_.start();
 }
