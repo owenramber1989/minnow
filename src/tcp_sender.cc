@@ -124,9 +124,9 @@ void TCPSender::tick(const size_t ms_since_last_tick) {
     }
     _messages.push(_outstanding_messages.front());
     if (window_size_ != 0) {
-        ++consecutive_retransmissions_;
         retransmission_timeout_ <<= 1;
     }
+    ++consecutive_retransmissions_;
     maybe_send();
     timer_.start();
 }
